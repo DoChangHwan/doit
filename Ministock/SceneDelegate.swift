@@ -16,7 +16,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(frame: UIScreen.main.bounds)
         window?.windowScene = windowScene
-        let mainViewController = ViewController() // 맨 처음 보여줄 ViewController
+        let mainViewController = LoginViewController() // 맨 처음 보여줄 ViewController
 
         window?.rootViewController = mainViewController
         window?.makeKeyAndVisible()
