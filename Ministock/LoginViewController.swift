@@ -192,7 +192,7 @@ class ThirdViewController: UIViewController {
         layout.scrollDirection = .horizontal
         let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
         cv.translatesAutoresizingMaskIntoConstraints = false
-        cv.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "cell")
+        cv.register(CustomCell.self, forCellWithReuseIdentifier: "cell")
         return cv
     }()
     
@@ -229,9 +229,9 @@ extension ThirdViewController: UICollectionViewDelegateFlowLayout, UICollectionV
             return data.count
         }
         func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as! CustomCell
-                cell.data = self.data[indexPath.row]
-                return cell
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as? CustomCell
+                cell?.data = self.data[indexPath.row]
+                return cell ?? UICollectionViewCell()
         }
 }
 
