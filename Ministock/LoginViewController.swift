@@ -1,10 +1,3 @@
-//
-//  ViewController.swift
-//  Ministock
-//
-//  Created by chang-hwan do on 10/02/2022.
-//
-
 import UIKit
 
 class LoginViewController: UIViewController {
@@ -53,7 +46,7 @@ class LoginViewController: UIViewController {
         super.viewDidLoad()
         addSubview()
         setupMainLayout()
-        
+        easyloginButton.addTarget(self, action: #selector(didTaphomeButton), for: .touchUpInside)
         self.view.backgroundColor = UIColor.white
     }
     
@@ -94,70 +87,61 @@ class LoginViewController: UIViewController {
         easyloginButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -5).isActive = true
         easyloginButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
         easyloginButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.7).isActive = true
-        easyloginButton.addTarget(self, action: #selector(didTapSecondButton), for: .touchUpInside)
+        easyloginButton.addTarget(self, action: #selector(didTaphomeButton), for: .touchUpInside)
 
     }
     
     @objc private func didTapButton() {
-        let rootVC = ThirdViewController()
+        let rootVC = HomeViewController()
         let navVC = UINavigationController(rootViewController: rootVC)
         navVC.modalPresentationStyle = .fullScreen
         present(navVC, animated: true)
     }
-    
-    @objc private func didTapSecondButton() {
-        let rootVC = SecondViewController()
-        let navVC = UINavigationController(rootViewController: rootVC)
-        navVC.modalPresentationStyle = .fullScreen
-        present(navVC, animated: true)
+
+    @objc func didTaphomeButton() {
+        let tabBarVC = UITabBarController()
+        
+        let vc1 = HomeViewController()
+        let vc2 = ThirdViewController()
+        let vc3 = FourthViewController()
+        let vc4 = FifthViewController()
+        
+        tabBarVC.setViewControllers([vc1, vc2, vc3, vc4], animated: false)
+        tabBarVC.modalPresentationStyle = .fullScreen
+        present(tabBarVC, animated: true)
     }
 }
 
-class SecondViewController: UIViewController {
+struct CustomData {
+    var title: String
+    var image: UIImage
+}
+
+class HomeViewController: UIViewController, UICollectionViewDelegate {
+    let data = [
+        CustomData(title: "first", image: #imageLiteral(resourceName: "first")),
+        CustomData(title: "second", image: #imageLiteral(resourceName: "second")),
+        CustomData(title: "third", image: #imageLiteral(resourceName: "third")),
+    ]
     
-    private lazy var scrollView: UIScrollView = {
-    let scrollView = UIScrollView()
-    scrollView.backgroundColor = .white
-    scrollView.translatesAutoresizingMaskIntoConstraints = false
-    return scrollView
-
-    }()
-    
-    private lazy var buttonOne: UIButton = {
-        let button = UIButton()
-        button.setTitle("hello", for: .normal)
-        button.setTitleColor(.blue, for: .normal)
-        button.backgroundColor = .systemBackground
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-        }()
-
-    private lazy var buttonTwo: UIButton = {
-        let button = UIButton()
-        button.setTitle("더보기", for: .normal)
-        button.setTitleColor(.black, for: .normal)
-        button.backgroundColor = .white
-        button.layer.borderWidth = 1
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-        }()
-
     override func viewDidLoad() {
         super.viewDidLoad()
-        addSecondSubView()
-        setupSecondAutolayout()
-
-        title = "Welcome SecondViewController"
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = .red
+        title = "Home"
+        
+        addHomeSubView()
+        self.view.addSubview(collectionView)
+        setupHomeAutolayout()
+        setupThirdAutolayout()
     }
-
-    func addSecondSubView() {
+    
+    func addHomeSubView() {
         self.view.addSubview(scrollView)
         scrollView.addSubview(buttonOne)
         scrollView.addSubview(buttonTwo)
     }
 
-    private func setupSecondAutolayout() {
+    private func setupHomeAutolayout() {
         scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20).isActive = true
         scrollView.topAnchor.constraint(equalTo: view.topAnchor, constant: 20).isActive = true
         scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20).isActive = true
@@ -170,23 +154,19 @@ class SecondViewController: UIViewController {
         buttonTwo.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.7).isActive = true
         buttonTwo.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 1000).isActive = true
         buttonTwo.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor, constant: -40).isActive = true
-
     }
-}
-
-struct CustomData {
-    var title: String
-    var image: UIImage
-    var url: String
-}
-
-class ThirdViewController: UIViewController {
+    private func setupThirdAutolayout() {
+        
+        collectionView.topAnchor.constraint(equalTo: view.topAnchor, constant: 16).isActive = true
+        collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16).isActive = true
+        collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16).isActive = true
+        collectionView.heightAnchor.constraint(equalTo: collectionView.widthAnchor, multiplier: 0.7).isActive = true
+        
+        collectionView.delegate = self
+        collectionView.dataSource = self
+    }
     
-    let data = [
-        CustomData(title: "first", image: #imageLiteral(resourceName: "first"), url: "maxcodes.io/course"),
-        CustomData(title: "second", image: #imageLiteral(resourceName: "second"), url: "maxcodes.io/enroll"),
-        CustomData(title: "third", image: #imageLiteral(resourceName: "third") , url: "maxcodes.io/courses"),
-    ]
+    
     fileprivate let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
@@ -196,34 +176,100 @@ class ThirdViewController: UIViewController {
         return cv
     }()
     
+    private lazy var scrollView: UIScrollView = {
+        let scrollView = UIScrollView()
+        scrollView.backgroundColor = .white
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        return scrollView
+    }()
+    
+    private lazy var buttonOne: UIButton = {
+        let button = UIButton()
+        button.setTitle("hello", for: .normal)
+        button.setTitleColor(.blue, for: .normal)
+        button.backgroundColor = .systemBackground
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+
+    private lazy var buttonTwo: UIButton = {
+        let button = UIButton()
+        button.setTitle("더보기", for: .normal)
+        button.setTitleColor(.black, for: .normal)
+        button.backgroundColor = .white
+        button.layer.borderWidth = 1
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+
+}
+
+
+class ThirdViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
-        addThirdSubView()
-        setupThirdAutolayout()
-
-        title = "Welcome ThirdViewController"
-        collectionView.backgroundColor = .systemBackground
-    }
-    
-    func addThirdSubView() {
-        self.view.addSubview(collectionView)
-    }
-    
-    private func setupThirdAutolayout() {
-        
-        collectionView.topAnchor.constraint(equalTo: view.topAnchor, constant: 50).isActive = true
-        collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16).isActive = true
-        collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16).isActive = true
-        collectionView.heightAnchor.constraint(equalTo: collectionView.widthAnchor, multiplier: 0.6).isActive = true
-        
-        collectionView.delegate = self
-        collectionView.dataSource = self
+        view.backgroundColor = .blue
+        title = "second"
     }
 }
 
-extension ThirdViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
+class FourthViewController: UIViewController {
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = .green
+        title = "third"
+    }
+}
+
+class FifthViewController: UIViewController {
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = .orange
+        title = "fourth"
+    }
+}
+
+//class horizontalViewController: UIViewController {
+//
+//    let data = [
+//        CustomData(title: "first", image: #imageLiteral(resourceName: "first")),
+//        CustomData(title: "second", image: #imageLiteral(resourceName: "second")),
+//        CustomData(title: "third", image: #imageLiteral(resourceName: "third")),
+//    ]
+//
+//    fileprivate let collectionView: UICollectionView = {
+//        let layout = UICollectionViewFlowLayout()
+//        layout.scrollDirection = .horizontal
+//        let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
+//        cv.translatesAutoresizingMaskIntoConstraints = false
+//        cv.register(CustomCell.self, forCellWithReuseIdentifier: "cell")
+//        return cv
+//    }()
+//
+//    override func viewDidLoad() {
+//        super.viewDidLoad()
+//        self.view.addSubview(collectionView)
+//        setupThirdAutolayout()
+//
+//        title = "Welcome ThirdViewController"
+//        collectionView.backgroundColor = .white
+//    }
+//
+//    private func setupThirdAutolayout() {
+//
+//        collectionView.topAnchor.constraint(equalTo: view.topAnchor, constant: 16).isActive = true
+//        collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16).isActive = true
+//        collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16).isActive = true
+//        collectionView.heightAnchor.constraint(equalTo: collectionView.widthAnchor, multiplier: 0.7).isActive = true
+//
+//        collectionView.delegate = self
+//        collectionView.dataSource = self
+//    }
+//}
+
+extension HomeViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
         func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-            return CGSize(width: collectionView.frame.width/2.5, height: collectionView.frame.width/2)
+            return CGSize(width: collectionView.frame.width, height: collectionView.frame.width/2)
         }
         func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
             return data.count
@@ -248,7 +294,7 @@ class CustomCell: UICollectionViewCell {
         let iv = UIImageView()
         iv.image = #imageLiteral(resourceName: "first")
         iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.contentMode = .scaleAspectFill
+        iv.contentMode = .scaleToFill
         iv.clipsToBounds = true
         iv.layer.cornerRadius = 12
         return iv
