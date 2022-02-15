@@ -7,11 +7,6 @@
 
 import UIKit
 
-struct CustomData {
-    var title: String
-    var image: UIImage
-    var url: String
-}
 class LoginViewController: UIViewController {
 
     private lazy var titleLabel: UILabel = {
@@ -179,12 +174,18 @@ class SecondViewController: UIViewController {
     }
 }
 
+struct CustomData {
+    var title: String
+    var image: UIImage
+    var url: String
+}
+
 class ThirdViewController: UIViewController {
     
     let data = [
-        CustomData(title: "first", image: image , url: "maxcodes.io/course"),
-        CustomData(title: "second", image: , url: "maxcodes.io/enroll"),
-        CustomData(title: "third", image:   , url: "maxcodes.io/courses"),
+        CustomData(title: "first", image: #imageLiteral(resourceName: "first"), url: "maxcodes.io/course"),
+        CustomData(title: "second", image: #imageLiteral(resourceName: "second"), url: "maxcodes.io/enroll"),
+        CustomData(title: "third", image: #imageLiteral(resourceName: "third") , url: "maxcodes.io/courses"),
     ]
     fileprivate let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -229,7 +230,7 @@ extension ThirdViewController: UICollectionViewDelegateFlowLayout, UICollectionV
         }
         func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as! CustomCell
-            cell.data = self.data[indexPath.row]
+                cell.data = self.data[indexPath.row]
                 return cell
         }
 }
@@ -242,9 +243,10 @@ class CustomCell: UICollectionViewCell {
             bg.image = data.image
         }
     }
+    
     fileprivate let bg: UIImageView = {
         let iv = UIImageView()
-        iv.image = imag
+        iv.image = #imageLiteral(resourceName: "first")
         iv.translatesAutoresizingMaskIntoConstraints = false
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
