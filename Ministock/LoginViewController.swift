@@ -106,7 +106,23 @@ class LoginViewController: UIViewController {
         let vc3 = FourthViewController()
         let vc4 = FifthViewController()
         
+        vc1.title = "Home"
+        vc2.title = "Second"
+        vc3.title = "Third"
+        vc4.title = "Fourth"
+        
         tabBarVC.setViewControllers([vc1, vc2, vc3, vc4], animated: false)
+        guard let items = tabBarVC.tabBar.items else {
+            return
+        }
+        let images = ["house", "bell", "star", "gear"]
+        let alarm = ["1", "3", "2", "1"]
+        
+        for x in 0..<items.count {
+            items[x].badgeValue = alarm[x]
+            items[x].image = UIImage(systemName: images[x])
+        }
+        
         tabBarVC.modalPresentationStyle = .fullScreen
         present(tabBarVC, animated: true)
     }
@@ -116,67 +132,19 @@ struct CustomData {
     var title: String
     var image: UIImage
 }
-
+ // 홈 화면
 class HomeViewController: UIViewController, UICollectionViewDelegate {
-    let data = [
-        CustomData(title: "first", image: #imageLiteral(resourceName: "first")),
-        CustomData(title: "second", image: #imageLiteral(resourceName: "second")),
-        CustomData(title: "third", image: #imageLiteral(resourceName: "third")),
-    ]
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        view.backgroundColor = .red
-        title = "Home"
-        
-        addHomeSubView()
-        self.view.addSubview(collectionView)
-        setupHomeAutolayout()
-        setupThirdAutolayout()
-    }
-    
-    func addHomeSubView() {
-        self.view.addSubview(scrollView)
-        scrollView.addSubview(buttonOne)
-        scrollView.addSubview(buttonTwo)
-    }
-
-    private func setupHomeAutolayout() {
-        scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20).isActive = true
-        scrollView.topAnchor.constraint(equalTo: view.topAnchor, constant: 20).isActive = true
-        scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20).isActive = true
-        scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -20).isActive = true
-
-        buttonOne.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: 40).isActive = true
-        buttonOne.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 40).isActive = true
-        
-        buttonTwo.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor).isActive = true
-        buttonTwo.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.7).isActive = true
-        buttonTwo.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 1000).isActive = true
-        buttonTwo.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor, constant: -40).isActive = true
-    }
-    private func setupThirdAutolayout() {
-        
-        collectionView.topAnchor.constraint(equalTo: view.topAnchor, constant: 16).isActive = true
-        collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16).isActive = true
-        collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16).isActive = true
-        collectionView.heightAnchor.constraint(equalTo: collectionView.widthAnchor, multiplier: 0.7).isActive = true
-        
-        collectionView.delegate = self
-        collectionView.dataSource = self
-    }
-    
-    
-    fileprivate let collectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .horizontal
-        let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        cv.translatesAutoresizingMaskIntoConstraints = false
-        cv.register(CustomCell.self, forCellWithReuseIdentifier: "cell")
-        return cv
+    private lazy var pageControl: UIPageControl = {
+        let pageControl = UIPageControl()
+        pageControl.numberOfPages = 5
+        pageControl.backgroundColor = .systemGray2
+        return pageControl
     }()
     
-    private lazy var scrollView: UIScrollView = {
+    private lazy var scrollView = UIScrollView()
+
+    private lazy var scrollHomeView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.backgroundColor = .white
         scrollView.translatesAutoresizingMaskIntoConstraints = false
@@ -201,10 +169,100 @@ class HomeViewController: UIViewController, UICollectionViewDelegate {
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        pageControl.addTarget(self, action: #selector(pageControlDidChange(_:)), for: .valueChanged) // 클릭시 전환
+        scrollView.delegate = self
+        scrollView.backgroundColor = .red
+        view.backgroundColor = .white
+        addHomeSubView()
+        setupHomeAutolayout()
+    }
+    // 클릭시 전환
+    @objc private func pageControlDidChange(_ sender: UIPageControl) {
+        let current = sender.currentPage
+        scrollView.setContentOffset(CGPoint(x: CGFloat(current) * view.frame.size.width, y: 0), animated: true)
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        pageControl.frame = CGRect(x: 10, y: view.frame.size.height-140, width: view.frame.size.width-20, height: 30)
+        scrollView.frame = CGRect(x: 0, y: 0, width: view.frame.size.width, height: view.frame.size.height-150)
+        
+        if scrollView.subviews.count == 2 {
+            configureScrollView()
+        }
+    }
+    
+    func addHomeSubView() {
+        self.view.addSubview(scrollHomeView)
+        self.view.addSubview(collectionTopimageView)
+        view.addSubview(pageControl)
+        view.addSubview(scrollView)
+        scrollHomeView.addSubview(buttonOne)
+        scrollHomeView.addSubview(buttonTwo)
+    }
+
+    private func setupHomeAutolayout() {
+        scrollHomeView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20).isActive = true
+        scrollHomeView.topAnchor.constraint(equalTo: view.topAnchor, constant: 20).isActive = true
+        scrollHomeView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20).isActive = true
+        scrollHomeView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -20).isActive = true
+
+        buttonOne.leadingAnchor.constraint(equalTo: scrollHomeView.leadingAnchor, constant: 40).isActive = true
+        buttonOne.topAnchor.constraint(equalTo: scrollHomeView.topAnchor, constant: 40).isActive = true
+        
+        buttonTwo.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor).isActive = true
+        buttonTwo.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.7).isActive = true
+        buttonTwo.topAnchor.constraint(equalTo: scrollHomeView.topAnchor, constant: 1000).isActive = true
+        buttonTwo.bottomAnchor.constraint(equalTo: scrollHomeView.bottomAnchor, constant: -40).isActive = true
+        
+        collectionTopimageView.topAnchor.constraint(equalTo: view.topAnchor, constant: 16).isActive = true
+        collectionTopimageView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16).isActive = true
+        collectionTopimageView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16).isActive = true
+        collectionTopimageView.heightAnchor.constraint(equalTo: collectionTopimageView.widthAnchor, multiplier: 0.7).isActive = true
+        
+        collectionTopimageView.delegate = self
+        collectionTopimageView.dataSource = self
+    }
+    
+    let data = [
+        CustomData(title: "first", image: #imageLiteral(resourceName: "first")),
+        CustomData(title: "second", image: #imageLiteral(resourceName: "second")),
+        CustomData(title: "third", image: #imageLiteral(resourceName: "third")),
+    ]
+    
+    fileprivate let collectionTopimageView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .horizontal
+        let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        cv.translatesAutoresizingMaskIntoConstraints = false
+        cv.backgroundColor = .white
+        cv.register(CustomCell.self, forCellWithReuseIdentifier: "cell")
+        return cv
+    }()
+    // 스크롤시 화면 이동
+    private func configureScrollView() {
+        scrollView.contentSize = CGSize(width: view.frame.size.width+5, height: scrollView.frame.size.height)
+        scrollView.isPagingEnabled = true
+        let colors: [UIColor] = [
+        .systemRed,
+        .systemGray,
+        .systemGreen,
+        .systemOrange,
+        .systemPurple
+        ]
+        for x in 0..<5 {
+            let page = UIView(frame: CGRect(x: CGFloat(x)*view.frame.size.width, y: 0, width: view.frame.size.width, height: scrollView.frame.size.height))
+            page.backgroundColor = colors[x]
+            scrollView.addSubview(page)
+        }
+    }
 
 }
 
-
+// 홈탭 구분
 class ThirdViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -228,44 +286,12 @@ class FifthViewController: UIViewController {
         title = "fourth"
     }
 }
-
-//class horizontalViewController: UIViewController {
-//
-//    let data = [
-//        CustomData(title: "first", image: #imageLiteral(resourceName: "first")),
-//        CustomData(title: "second", image: #imageLiteral(resourceName: "second")),
-//        CustomData(title: "third", image: #imageLiteral(resourceName: "third")),
-//    ]
-//
-//    fileprivate let collectionView: UICollectionView = {
-//        let layout = UICollectionViewFlowLayout()
-//        layout.scrollDirection = .horizontal
-//        let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
-//        cv.translatesAutoresizingMaskIntoConstraints = false
-//        cv.register(CustomCell.self, forCellWithReuseIdentifier: "cell")
-//        return cv
-//    }()
-//
-//    override func viewDidLoad() {
-//        super.viewDidLoad()
-//        self.view.addSubview(collectionView)
-//        setupThirdAutolayout()
-//
-//        title = "Welcome ThirdViewController"
-//        collectionView.backgroundColor = .white
-//    }
-//
-//    private func setupThirdAutolayout() {
-//
-//        collectionView.topAnchor.constraint(equalTo: view.topAnchor, constant: 16).isActive = true
-//        collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16).isActive = true
-//        collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16).isActive = true
-//        collectionView.heightAnchor.constraint(equalTo: collectionView.widthAnchor, multiplier: 0.7).isActive = true
-//
-//        collectionView.delegate = self
-//        collectionView.dataSource = self
-//    }
-//}
+// 스크롤시 바 상태 변화
+extension HomeViewController: UIScrollViewDelegate {
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        pageControl.currentPage = Int(floorf(Float(scrollView.contentOffset.x) / Float(scrollView.frame.width)))
+    }
+}
 
 extension HomeViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
         func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
