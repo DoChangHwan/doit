@@ -9,6 +9,13 @@ import UIKit
 
 class MainTabBarController: UITabBarController {
     // Todo: UIViewController 4개
+    private lazy var homeViewController: UINavigationController = {
+        let viewController = UINavigationController(rootViewController: UIViewController())
+        viewController.tabBarItem = UITabBarItem(title: "Home", image: UIImage(systemName: ""), tag: 0)
+        return UINavigationController(rootViewController: viewController)
+    }()
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
