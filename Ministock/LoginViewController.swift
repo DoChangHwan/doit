@@ -71,19 +71,15 @@ class LoginViewController: UIViewController {
         secondLabel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16).isActive = true
         secondLabel.heightAnchor.constraint(equalToConstant: 34).isActive = true
 
-        faceidButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor).isActive = true
         faceidButton.bottomAnchor.constraint(equalTo: easyloginButton.topAnchor, constant: -10).isActive = true
         faceidButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 50).isActive = true
-        faceidButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -5).isActive = true
         faceidButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
         faceidButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.7).isActive = true
         faceidButton.addTarget(self, action: #selector(didTapButton), for: .touchUpInside)
 
 
-        easyloginButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor).isActive = true
         easyloginButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16).isActive = true
         easyloginButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 50).isActive = true
-        easyloginButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -5).isActive = true
         easyloginButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
         easyloginButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.7).isActive = true
         easyloginButton.addTarget(self, action: #selector(didTapLoginButton), for: .touchUpInside)
