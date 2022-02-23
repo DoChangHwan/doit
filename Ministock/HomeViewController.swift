@@ -12,6 +12,11 @@ struct CustomData {
     var image: UIImage
 }
 
+struct CustomDataDevidend {
+    var title: String
+    var image: UIImage
+}
+
  // 홈 화면
 class HomeViewController: UIViewController, UICollectionViewDelegate {
     
@@ -32,10 +37,15 @@ class HomeViewController: UIViewController, UICollectionViewDelegate {
      private lazy var collectionTopimageView: UICollectionView = {
          let layout = UICollectionViewFlowLayout()
          layout.scrollDirection = .horizontal
+        
          let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
          cv.translatesAutoresizingMaskIntoConstraints = false
          cv.backgroundColor = .white
          cv.register(CustomCell.self, forCellWithReuseIdentifier: "cell")
+        
+        cv.delegate = self
+        cv.dataSource = self
+    
          return cv
      }()
      
@@ -85,6 +95,28 @@ class HomeViewController: UIViewController, UICollectionViewDelegate {
         return label
     }()
     
+    let dataDevidend = [
+        CustomDataDevidend(title: "testdevidend1", image: #imageLiteral(resourceName: "testdevidend1")),
+        CustomDataDevidend(title: "testdevidend2", image: #imageLiteral(resourceName: "testdevidend3")),
+        CustomDataDevidend(title: "testdevidend3", image: #imageLiteral(resourceName: "스크린샷 2022-02-23 오전 9.47.28")),
+    ]
+
+    private lazy var collectionDevidend: UICollectionView = {
+        let layoutDevidend = UICollectionViewFlowLayout()
+        layoutDevidend.scrollDirection = .horizontal
+        layoutDevidend.minimumLineSpacing = 10
+        
+        let cvDevidend = UICollectionView(frame: .zero, collectionViewLayout: layoutDevidend)
+        cvDevidend.translatesAutoresizingMaskIntoConstraints = false
+        cvDevidend.backgroundColor = .white
+        cvDevidend.register(CustomCell.self, forCellWithReuseIdentifier: "cell")
+        
+        cvDevidend.delegate = self
+        cvDevidend.dataSource = self
+        
+        return cvDevidend
+    }()
+    
     // 환율 정보
     private lazy var buttonDollarInfo: UIButton = {
         let button = UIButton()
@@ -102,6 +134,8 @@ class HomeViewController: UIViewController, UICollectionViewDelegate {
         view.backgroundColor = .systemBackground
         addHomeSubView()
         setupHomeAutolayout()
+        
+        scrollMenuView.delegate = self
     }
     
     func addHomeSubView() {
@@ -111,8 +145,9 @@ class HomeViewController: UIViewController, UICollectionViewDelegate {
         scrollHomeView.addSubview(scrollMenuView)
         scrollHomeView.addSubview(buttonMoreInfo)
         scrollHomeView.addSubview(viewStockDevidend)
-        viewStockDevidend.addSubview(scrollDevidendButton)
+    
         viewStockDevidend.addSubview(labelStockDevidend)
+        viewStockDevidend.addSubview(collectionDevidend)
         scrollHomeView.addSubview(buttonDollarInfo)
         
         
@@ -129,31 +164,29 @@ class HomeViewController: UIViewController, UICollectionViewDelegate {
         collectionTopimageView.trailingAnchor.constraint(equalTo: scrollHomeView.trailingAnchor).isActive = true
         collectionTopimageView.widthAnchor.constraint(equalTo: scrollHomeView.widthAnchor).isActive = true
         collectionTopimageView.heightAnchor.constraint(equalTo: collectionTopimageView.widthAnchor, multiplier: 0.7).isActive = true
-        
-        collectionTopimageView.delegate = self
-        collectionTopimageView.dataSource = self
-        
+                
         pageControl.leadingAnchor.constraint(equalTo: scrollHomeView.leadingAnchor, constant: 20).isActive = true
         pageControl.heightAnchor.constraint(equalToConstant: 10).isActive = true
         pageControl.widthAnchor.constraint(equalToConstant: 150).isActive = true
         pageControl.topAnchor.constraint(equalTo: collectionTopimageView.bottomAnchor, constant: -80).isActive = true
         pageControl.addTarget(self, action: #selector(pageControlDidChange(_:)), for: .valueChanged) // 클릭시 전환
-        
-        scrollMenuView.delegate = self
 
         buttonMoreInfo.centerXAnchor.constraint(equalTo: scrollHomeView.safeAreaLayoutGuide.centerXAnchor).isActive = true
         buttonMoreInfo.topAnchor.constraint(equalTo: scrollMenuView.bottomAnchor, constant: 10).isActive = true
         buttonMoreInfo.widthAnchor.constraint(equalTo: view.safeAreaLayoutGuide.widthAnchor, multiplier: 0.9).isActive = true
         buttonMoreInfo.heightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.widthAnchor, multiplier: 0.1).isActive = true
-
-        scrollDevidendButton.delegate = self
         
         viewStockDevidend.widthAnchor.constraint(equalTo: scrollHomeView.widthAnchor).isActive = true
         viewStockDevidend.heightAnchor.constraint(equalTo: scrollHomeView.heightAnchor, multiplier: 0.5).isActive = true
         viewStockDevidend.topAnchor.constraint(equalTo: buttonMoreInfo.bottomAnchor, constant: 16).isActive = true
         viewStockDevidend.bottomAnchor.constraint(equalTo: scrollHomeView.bottomAnchor, constant: -30).isActive = true
         viewStockDevidend.leadingAnchor.constraint(equalTo: scrollHomeView.leadingAnchor).isActive = true
-
+        
+        collectionDevidend.topAnchor.constraint(equalTo: viewStockDevidend.topAnchor, constant: 90).isActive = true
+        collectionDevidend.leadingAnchor.constraint(equalTo: viewStockDevidend.leadingAnchor, constant: 10).isActive = true
+        collectionDevidend.widthAnchor.constraint(equalTo: viewStockDevidend.widthAnchor).isActive = true
+        collectionDevidend.heightAnchor.constraint(equalTo: collectionDevidend.widthAnchor, multiplier: 0.5).isActive = true
+        
         labelStockDevidend.topAnchor.constraint(equalTo: viewStockDevidend.topAnchor, constant: 20).isActive = true
         labelStockDevidend.leadingAnchor.constraint(equalTo: viewStockDevidend.leadingAnchor, constant: 6).isActive = true
         
@@ -173,20 +206,17 @@ class HomeViewController: UIViewController, UICollectionViewDelegate {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         scrollMenuView.frame = CGRect(x: 0, y: 250, width: view.frame.size.width, height: view.frame.size.height/2)
-        scrollDevidendButton.frame = CGRect(x: 0, y: 200, width: viewStockDevidend.frame.size.width/2, height: viewStockDevidend.frame.size.height/2
-        )
+        
         if scrollMenuView.subviews.count == 2 {
             configureScrollMenuView()
         }
-        if scrollDevidendButton.subviews.count == 2 {
-            configureScrollDevidendButton()
-        }
+ 
     }
     private func configureScrollMenuView() {
         scrollMenuView.contentSize = CGSize(width: view.frame.size.width*5, height: scrollMenuView.frame.size.height)
         scrollMenuView.isPagingEnabled = true
         let colors: [UIColor] = [
-        .systemMint,
+        .systemGray4,
         .systemGray,
         .systemGreen,
         .systemOrange,
@@ -198,25 +228,6 @@ class HomeViewController: UIViewController, UICollectionViewDelegate {
             scrollMenuView.addSubview(page)
         }
     }
-    
-    private func configureScrollDevidendButton() {
-
-        scrollDevidendButton.isPagingEnabled = true
-        let colors: [UIColor] = [
-        .systemMint,
-        .systemGray,
-        .systemGreen,
-        .systemOrange,
-        .systemPurple
-        ]
-        for x in 0..<5 {
-            let page = UIView(frame: CGRect(x: CGFloat(x)*view.frame.size.width, y: 0, width: view.frame.size.width, height: view.frame.size.height))
-            page.backgroundColor = colors[x]
-            scrollMenuView.addSubview(page)
-        }
-    }
-    
-
 }
 
 // title 배너 스크롤시 바 상태 변화
@@ -227,10 +238,12 @@ extension HomeViewController: UIScrollViewDelegate {
 }
 
 // title 배너 설정
-extension HomeViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
-        func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-            return CGSize(width: collectionView.frame.width, height: collectionView.frame.width/2)
-        }
+extension HomeViewController: UICollectionViewDelegateFlowLayout {
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        return CGSize(width: collectionView.frame.width, height: collectionView.frame.width/2)
+    }
+}
+extension HomeViewController: UICollectionViewDataSource {
         func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
             return data.count
         }
@@ -241,36 +254,3 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout, UICollectionVi
         }
 }
 
-// title 배너 custom collectionview
-class CustomCell: UICollectionViewCell {
-    
-    var data: CustomData? {
-        didSet {
-            guard let data = data else {return}
-            bg.image = data.image
-        }
-    }
-    
-    fileprivate let bg: UIImageView = {
-        let iv = UIImageView()
-        iv.image = #imageLiteral(resourceName: "first")
-        iv.translatesAutoresizingMaskIntoConstraints = false
-        iv.contentMode = .scaleToFill
-        iv.clipsToBounds = true
-        iv.layer.cornerRadius = 12
-        return iv
-    }()
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        
-        contentView.addSubview(bg)
-        bg.topAnchor.constraint(equalTo: contentView.topAnchor).isActive = true
-        bg.leadingAnchor.constraint(equalTo: contentView.leadingAnchor).isActive = true
-        bg.trailingAnchor.constraint(equalTo: contentView.trailingAnchor).isActive = true
-        bg.bottomAnchor.constraint(equalTo: contentView.bottomAnchor).isActive = true
-    }
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-}
