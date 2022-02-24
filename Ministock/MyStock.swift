@@ -8,7 +8,7 @@
 import Foundation
 
 
-struct MyStockModel: Decodable {
+struct MyStock: Decodable {
     let stockName: String
     let currentPrice: Int
     let stockQuantity: Float
