@@ -20,6 +20,8 @@ struct CustomDataDevidend {
  // 홈 화면
 class HomeViewController: UIViewController, UICollectionViewDelegate {
     
+    private lazy var tableview = UITableView()
+    
     private lazy var scrollHomeView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.backgroundColor = .systemBackground
@@ -27,6 +29,20 @@ class HomeViewController: UIViewController, UICollectionViewDelegate {
         return scrollView
     }()
     
+    private var stocks: [MyStockModel] = []
+    
+    
+//    private lazy var stackView: UIStackView(arrangedSubviews: [collectionTopImageView, scrollMenuView])
+
+//    private lazy var stackView:UIStackView = {
+//        let stackView = UIStackView(arrangedSubviews: [collectionTopimageView, scrollMenuView])
+//        stackView.alignment = .fill
+//        stackView.distribution = .fill
+//        stackView.spacing = 10
+//        stackView.axis = .vertical
+//        return stackView
+//    }()
+//
     // title 배너 collectionview 구현
      let data = [
          CustomData(title: "first", image: #imageLiteral(resourceName: "first")),
@@ -43,8 +59,8 @@ class HomeViewController: UIViewController, UICollectionViewDelegate {
          cv.backgroundColor = .white
          cv.register(CustomCell.self, forCellWithReuseIdentifier: "cell")
         
-        cv.delegate = self
-        cv.dataSource = self
+         cv.delegate = self
+         cv.dataSource = self
     
          return cv
      }()
@@ -62,6 +78,13 @@ class HomeViewController: UIViewController, UICollectionViewDelegate {
      }()
     
     private lazy var scrollMenuView = UIScrollView()
+    
+    private lazy var tableView: UITableView = {
+        let tableview = UITableView()
+        tableview.translatesAutoresizingMaskIntoConstraints = false
+        return tableview
+    }()
+    
     
     // 더보기 버튼
     private lazy var buttonMoreInfo: UIButton = {
@@ -134,15 +157,27 @@ class HomeViewController: UIViewController, UICollectionViewDelegate {
         view.backgroundColor = .systemBackground
         addHomeSubView()
         setupHomeAutolayout()
+
+        NetworkManager().requestMyStock { [weak self] stocks in
+            DispatchQueue.main.async {
+                self?.stocks = stocks
+                print(self?.stocks)
+                self?.tableview.reloadData()
+                
+            }
+        }
         
         scrollMenuView.delegate = self
     }
+    
+
     
     func addHomeSubView() {
         view.addSubview(scrollHomeView)
         scrollHomeView.addSubview(collectionTopimageView)
         scrollHomeView.addSubview(pageControl)
         scrollHomeView.addSubview(scrollMenuView)
+        scrollMenuView.addSubview(tableview)
         scrollHomeView.addSubview(buttonMoreInfo)
         scrollHomeView.addSubview(viewStockDevidend)
     
@@ -170,6 +205,11 @@ class HomeViewController: UIViewController, UICollectionViewDelegate {
         pageControl.widthAnchor.constraint(equalToConstant: 150).isActive = true
         pageControl.topAnchor.constraint(equalTo: collectionTopimageView.bottomAnchor, constant: -80).isActive = true
         pageControl.addTarget(self, action: #selector(pageControlDidChange(_:)), for: .valueChanged) // 클릭시 전환
+        
+        tableview.trailingAnchor.constraint(equalTo: scrollMenuView.trailingAnchor).isActive = true
+        tableview.leadingAnchor.constraint(equalTo: scrollMenuView.leadingAnchor).isActive = true
+        tableview.topAnchor.constraint(equalTo: scrollMenuView.topAnchor).isActive = true
+        tableview.bottomAnchor.constraint(equalTo: scrollMenuView.bottomAnchor).isActive = true
 
         buttonMoreInfo.centerXAnchor.constraint(equalTo: scrollHomeView.safeAreaLayoutGuide.centerXAnchor).isActive = true
         buttonMoreInfo.topAnchor.constraint(equalTo: scrollMenuView.bottomAnchor, constant: 10).isActive = true
@@ -252,5 +292,16 @@ extension HomeViewController: UICollectionViewDataSource {
                 cell?.data = self.data[indexPath.row]
                 return cell ?? UICollectionViewCell()
         }
+}
+
+extension HomeViewController: UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return stocks.count
+    }
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableview.dequeueReusableCell(withIdentifier: "", for: indexPath)
+        
+        return cell
+    }
 }
 
